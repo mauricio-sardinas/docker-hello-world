@@ -112,3 +112,15 @@ jobs:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'
+    
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: mauricio-sardinas/argo-cluster
+          path: deploy
+      - run: sed -i -E "s|(ghcr.io/mauricio-sardinas/docker-hello-world):v.*|\1:${{needs.build.outputs.version}}|" deploy/hello/vela-app.yaml.txt
