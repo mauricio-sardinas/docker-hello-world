@@ -140,7 +140,7 @@ jobs:
         with:
           repository: mauricio-sardinas/argo-cluster
           token: ${{ secrets.RELEASE_TOKEN }}
-      - run: sed -i -E "s|(ghcr.io/mauricio-sardinas/docker-hello-world):v.*|\1:${{needs.build.outputs.version}}|" hello/vela-app.yaml
+      - run: sed -i -E "s|(/mauricio-sardinas/docker-hello-world):v.*|\1:${{needs.build.outputs.version}}|" hello/vela.yaml
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
