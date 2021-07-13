@@ -32,6 +32,7 @@ jobs:
     
     outputs:
       version: ${{ steps.semver.outputs.version }}
+      deploy_folder: ${{ steps.deploy_folder.outputs.deploy_folder }}
       
     permissions:
       contents: read
@@ -73,6 +74,18 @@ jobs:
               echo "::set-output name=format::\${major}.\${minor}.\${patch}"
           else
               echo "::set-output name=format::\${major}.\${minor}.\${patch}-\${increment}"
+          fi
+        env:
+          REF: ${{ github.ref }}
+      
+      - name: get deploy folder based on branch
+        id: deploy_folder
+        run: |
+          if [[ "$REF" == 'refs/heads/master' ]]
+          then
+              echo "::set-output name=deploy_folder::prod"
+          else
+              echo "::set-output name=deploy_folder::dev"
           fi
         env:
           REF: ${{ github.ref }}
@@ -138,9 +151,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: mauricio-sardinas/argo-cluster
+          repository: ConstellationBrands/ea-platform-cd
           token: ${{ secrets.RELEASE_TOKEN }}
-      - run: sed -i -E "s|(/mauricio-sardinas/docker-hello-world):.*|\1:${{needs.build.outputs.version}}|" hello/vela.yaml
+      - run: sed -i -E "s|(value):.*|\1:\s${{needs.build.outputs.version}}|" apps/templates/${{needs.build.outputs.deploy_folder}}/hello-world.yaml
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
